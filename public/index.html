@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список товаров</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body class="container py-4">
+    <h1 class="text-center mb-4">Список товаров</h1>
+
+    <div class="d-flex justify-content-center gap-2 mb-3">
+        <button class="btn btn-primary" onclick="fetchProducts()">Все</button>
+        <button class="btn btn-info" onclick="fetchProducts('Электроника')">Электроника</button>
+        <button class="btn btn-warning" onclick="fetchProducts('Мебель')">Мебель</button>        
+        <button class="btn btn-success" onclick="fetchProducts(null, 'asc')">Цена(по возрастанию)</button>
+        <button class="btn btn-danger" onclick="fetchProducts(null, 'desc')">Цена(по убыванию)</button>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Название</th>
+                <th>Цена $</th>
+                <th>Категория</th>
+            </tr>
+        </thead>
+        <tbody id="productList"></tbody>
+    </table>
+
+    <h2 class="mt-4">Добавить товар</h2>
+    <form id="addProductForm" class="row g-3">
+        <div class="col-md-4">
+            <input type="text" id="name" class="form-control" placeholder="Название" required>
+        </div>
+        <div class="col-md-4">
+            <input type="number" id="price" class="form-control" placeholder="Цена" required>
+        </div>
+        <div class="col-md-4">
+            <select id="category" class="form-select" required>
+                <option value="" disabled selected>Выберите категорию</option>
+                <option value="Электроника">Электроника</option>
+                <option value="Мебель">Мебель</option>
+            </select>            
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-success">Добавить</button>
+        </div>
+    </form>
+
+    <script>
+        async function fetchProducts(category = null, sort = null) {
+            let url = "http://localhost:3000/products";
+            if (category || sort) {
+                url += `?${category ? "category=" + category : ""}${category && sort ? "&" : ""}${sort ? "sort=" + sort : ""}`;
+            }
+            const res = await fetch(url);
+            const products = await res.json();
+            document.getElementById("productList").innerHTML = products.map(p =>
+            `
+                <tr>
+                    <td>${p.name}</td>
+                    <td>${p.price}</td>
+                    <td>${p.category}</td>
+                </tr>
+            `).join("");
+        }
+
+        document.getElementById("addProductForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const name = document.getElementById("name").value;
+            const price = document.getElementById("price").value;
+            const category = document.getElementById("category").value;
+
+            const res = await fetch("http://localhost:3000/products", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, price, category })
+            });
+
+            if (res.ok) {
+                fetchProducts();
+                document.getElementById("addProductForm").reset();
+            }
+        });
+
+        fetchProducts();
+    </script>
+</body>
+</html>
