@@ -6,11 +6,10 @@ const app = express();
 const PORT = 3000;
 const PRODUCTS_FILE = path.join(__dirname, "products.json");
 
-// app.use(cors());  
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-// Функция для чтения товаров из файла
+// Чтение товаров из файла
 const readProductsFromFile = () => {
     if (fs.existsSync(PRODUCTS_FILE)) {
         const data = fs.readFileSync(PRODUCTS_FILE);
@@ -20,12 +19,12 @@ const readProductsFromFile = () => {
     }
 };
 
-// Функция для записи товаров в файл
+// Запиcь товаров в файл
 const writeProductsToFile = (products) => {
     fs.writeFileSync(PRODUCTS_FILE, JSON.stringify(products, null, 2));
 };
 
-// Загружаем товары из файла
+// Загрузка товаров из файла
 let products = readProductsFromFile();
 
 app.get("/products", (req, res) => {
@@ -44,6 +43,8 @@ app.get("/products", (req, res) => {
     res.json(filteredProducts);
 });
 
+
+// Добавление нового продукта в файл
 app.post("/products", (req, res) => {
     const { name, price, category } = req.body;
     const newProduct = {
@@ -54,7 +55,6 @@ app.post("/products", (req, res) => {
     };
     products.push(newProduct);
 
-    // Сохраняем обновленный список товаров в файл
     writeProductsToFile(products);
 
     res.json(newProduct);
