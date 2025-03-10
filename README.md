@@ -1,1 +1,1 @@
-Перед запуском нужно установить зависимость **npm install express**
+Перед запуском нужно установить зависимости **npm install express** и **npm install ejs**
